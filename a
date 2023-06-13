@@ -1,0 +1,65 @@
+xf = 0;
+Kp = [1 1 1];
+Ki = [0.1 0.1 0.1];
+Kd = [0.01 0.01 0.01];
+
+error = [0;0;0];
+error_sum = [0;0;0];
+
+alpha = 0.1; 
+max_error = 100; 
+k=0.1;
+
+Kp_adapt = Kp;
+Ki_adapt = Ki;
+Kd_adapt = Kd;
+
+dt = 0.01;
+t = 0:dt:10000;
+
+u = 500;
+x1=1; x2=1; x3=2;
+xa1=1;xa2=1;xa3=2;
+
+u_store = zeros(size(t));
+
+error_previous = [0;0;0];
+
+
+for i = 1:length(t)
+    error = [xf - x1;xf - x2;xf - x3];
+    if i==1
+        error_previous = error;
+    else
+        error_previous=[xf - xa1(i-1);xf - xa2(i-1);xf - xa3(i-1)];
+    end
+
+    u = Kp_adapt*error + Ki_adapt*error_sum + Kd_adapt*((error - error_previous)/dt);
+    u_store(i) = u;
+    
+    x1d=x2;
+    x2d=k*x3;
+    x3d=k*x3+u;
+    x1=x1+x1d*dt;
+    x2=x2+x2d*dt;
+    x3=x3+x3d*dt;
+    xa1(i)=x1;
+    xa2(i)=x2;
+    xa3(i)=x3;
+    
+    error_sum = error_sum + error*dt;
+
+    Kp_adapt = Kp_adapt + alpha*(error.').*((error.')/max_error);
+    Ki_adapt = Ki_adapt + alpha*(error_sum.').*((error.')/max_error);
+    Kd_adapt = Kd_adapt + alpha*(((error - error_previous)/dt).').*((error.')/max_error);
+end
+
+plot(t,xa1);
+    hold on
+    plot(t,xa2);
+    hold on
+    plot(t,xa3);
+    grid on
+title('System Response')
+ylabel('Output (x)')
+xlabel('Time (s)')

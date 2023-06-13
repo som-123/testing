@@ -1,0 +1,34 @@
+//maximum sum of sub_array of size K
+
+#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <set>
+using namespace std;
+#define ll long long
+int main()
+{
+int n;
+cin >> n;
+int arr[n];
+for(int i = 0; i < n; i++){
+    cin >> arr[i];
+}
+int k;
+cin >> k;
+int i = 0, j=0, sum =0, mx=0;
+while (j<n){
+    sum = sum + arr[j];
+    if(j-i+1 < k){
+        j++;
+    }
+    else if(j-i+1 == k){
+        mx = max(mx, sum);
+        sum = sum - arr[i];
+        i++;
+        j++;
+    }
+}
+cout << mx << endl;
+return 0;
+}
